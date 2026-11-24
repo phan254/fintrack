@@ -1,0 +1,32 @@
+
+# Environment files and secrets
+**/.env
+**/.env.*
+!**/.env.example
+
+# Dependencies
+**/vendor/
+**/node_modules/
+
+# Frontend production build
+frontend/dist/
+
+# Laravel generated files
+backend/.phpunit.result.cache
+backend/storage/logs/*
+backend/bootstrap/cache/*.php
+
+# Database backups - never commit real data
+fintrack_backup.sql
+fintrack_backup_compatible.sql
+*.sql
+
+# Debug and temporary files
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+.vscode/
