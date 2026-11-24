@@ -1,5 +1,5 @@
-
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Wallet, ArrowLeftRight, PieChart, Settings,
   Bell, Search, Plus, TrendingUp, TrendingDown, ArrowUpRight,
@@ -144,8 +144,29 @@ const emptyPortfolioForm = () => ({
   initial_balance: '0',
 })
 
+// URL for each page in the app.
+const pageRoutes = {
+  Dashboard: '/',
+  Portfolios: '/portfolios',
+  Transactions: '/transactions',
+  Holdings: '/holdings',
+  Settings: '/settings',
+}
+
+const pathToPage = Object.fromEntries(
+  Object.entries(pageRoutes).map(([page, path]) => [path, page]),
+)
+
 function App() {
-  const [activePage, setActivePage] = useState('Dashboard')
+  const routerLocation = useLocation()
+  const navigate = useNavigate()
+
+  const activePage =
+    pathToPage[routerLocation.pathname.replace(/\/+$/, '') || '/'] ||
+    'Dashboard'
+
+  const setActivePage = (page) => navigate(pageRoutes[page] || '/')
+
   const [mobileMenu, setMobileMenu] = useState(false)
 
   const [period, setPeriod] = useState('This year')
@@ -2205,4 +2226,13 @@ function App() {
   )
 }
 
-export default App
+// The router wraps the app so each page gets its own URL.
+function Root() {
+  return (
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  )
+}
+
+export default Root
