@@ -208,4 +208,119 @@ class InvestmentApiTest extends TestCase
         $this->assertEquals(1000, $summary['total_portfolio_value']);
         $this->assertEquals(1, $summary['holdings_count']);
     }
+
+    public function test_deleting_a_buy_recalculates_the_holding(): void
+    {
+        $user = $this->makeUser();
+
+        Sanctum::actingAs($user);
+
+        $portfolio = $this->makePortfolio($user);
+
+        $firstBuy = $this->buy($portfolio->id, 'KCB', 10, 40)
+            ->assertCreated()
+            ->json('data.id');
+
+        $this->buy($portfolio->id, 'KCB', 10, 50)
+            ->assertCreated();
+
+        $holding = $portfolio->holdings()->firstOrFail();
+
+        $this->assertEquals(20, (float) $holding->quantity);
+        $this->assertEquals(45, (float) $holding->purchase_price);
+
+        $this->deleteJson('/api/transactions/' . $firstBuy)
+            ->assertOk()
+            ->assertJson([
+                'message' => 'Transaction deleted successfully.',
+            ]);
+
+        $holding->refresh();
+
+        $this->assertEquals(10, (float) $holding->quantity);
+        $this->assertEquals(50, (float) $holding->purchase_price);
+
+        $this->assertDatabaseMissing('transactions', [
+            'id' => $firstBuy,
+        ]);
+
+        $this->assertDatabaseCount('transactions', 1);
+    }
+
+    public function test_deleting_a_sell_restores_the_holding_quantity(): void
+    {
+        $user = $this->makeUser();
+
+        Sanctum::actingAs($user);
+
+        $portfolio = $this->makePortfolio($user);
+
+        $this->buy($portfolio->id, 'KCB', 10, 40)
+            ->assertCreated();
+
+        $sellId = $this->postJson('/api/transactions', [
+            'portfolio_id' => $portfolio->id,
+            'type' => 'sell',
+            'instrument' => 'KCB',
+            'quantity' => 3,
+            'unit_price' => 45,
+            'trade_date' => '2026-11-24',
+        ])
+            ->assertCreated()
+            ->json('data.id');
+
+        $holding = $portfolio->holdings()->firstOrFail();
+
+        $this->assertEquals(7, (float) $holding->quantity);
+
+        $this->deleteJson('/api/transactions/' . $sellId)
+            ->assertOk();
+
+        $holding->refresh();
+
+        $this->assertEquals(10, (float) $holding->quantity);
+        $this->assertEquals(40, (float) $holding->purchase_price);
+
+        $this->assertDatabaseMissing('transactions', [
+            'id' => $sellId,
+        ]);
+    }
+
+    public function test_deleting_a_buy_is_rejected_when_it_would_leave_an_excess_sale(): void
+    {
+        $user = $this->makeUser();
+
+        Sanctum::actingAs($user);
+
+        $portfolio = $this->makePortfolio($user);
+
+        $buyId = $this->buy($portfolio->id, 'KCB', 10, 40)
+            ->assertCreated()
+            ->json('data.id');
+
+        $this->buy($portfolio->id, 'KCB', 5, 45)
+            ->assertCreated();
+
+        $this->postJson('/api/transactions', [
+            'portfolio_id' => $portfolio->id,
+            'type' => 'sell',
+            'instrument' => 'KCB',
+            'quantity' => 12,
+            'unit_price' => 50,
+            'trade_date' => '2026-11-24',
+        ])->assertCreated();
+
+        $this->deleteJson('/api/transactions/' . $buyId)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['transaction']);
+
+        $this->assertDatabaseHas('transactions', [
+            'id' => $buyId,
+        ]);
+
+        $holding = $portfolio->holdings()->firstOrFail();
+
+        $this->assertEquals(3, (float) $holding->quantity);
+    }
+
 }

@@ -147,8 +147,6 @@ class TransactionController extends Controller
         }
 
         $transaction = DB::transaction(function () use ($request, $validated) {
-
-            // Lock the portfolio to prevent conflicting transactions.
             $portfolio = Portfolio::where('id', $validated['portfolio_id'])
                 ->where('user_id', $request->user()->id)
                 ->lockForUpdate()
@@ -217,17 +215,13 @@ class TransactionController extends Controller
                         ]);
                     }
 
-                    $newQuantity = round(
-                        $availableQuantity - $quantity,
-                        6
-                    );
+                    $newQuantity = round($availableQuantity - $quantity, 6);
 
                     $holding->update([
                         'quantity' => $newQuantity,
                     ]);
                 }
 
-                // Build the investment transaction.
                 $data = [
                     'portfolio_id' => $portfolio->id,
                     'user_id' => $userId,
@@ -320,22 +314,134 @@ class TransactionController extends Controller
     }
 
     /**
-     * Delete legacy income and expense transactions.
+     * Delete a transaction and recalculate investment holdings.
      */
     public function destroy(Request $request, string $id)
     {
-        $transaction = $this->findUserTransaction($request, $id);
+        DB::transaction(function () use ($request, $id) {
+            $transaction = Transaction::where('user_id', $request->user()->id)
+                ->lockForUpdate()
+                ->findOrFail($id);
 
-        if (in_array($transaction->type, ['buy', 'sell'])) {
-            return response()->json([
-                'message' => 'Investment trades cannot be deleted because they affect holding balances.',
-            ], 422);
-        }
+            if (in_array($transaction->type, ['buy', 'sell'])) {
+                $portfolio = Portfolio::where('id', $transaction->portfolio_id)
+                    ->where('user_id', $request->user()->id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
 
-        $transaction->delete();
+                $symbol = $transaction->instrument;
+
+                $holding = Holding::where('portfolio_id', $portfolio->id)
+                    ->where('user_id', $request->user()->id)
+                    ->where('symbol', $symbol)
+                    ->lockForUpdate()
+                    ->first();
+
+                $remainingTransactions = Transaction::where('user_id', $request->user()->id)
+                    ->where('portfolio_id', $portfolio->id)
+                    ->where('instrument', $symbol)
+                    ->whereIn('type', ['buy', 'sell'])
+                    ->where('id', '!=', $transaction->id)
+                    ->orderBy('trade_date')
+                    ->orderBy('id')
+                    ->get();
+
+                $this->recalculateHolding(
+                    $portfolio,
+                    $symbol,
+                    $remainingTransactions,
+                    $holding
+                );
+            }
+
+            $transaction->delete();
+        });
 
         return response()->json([
             'message' => 'Transaction deleted successfully.',
+        ]);
+    }
+
+    /**
+     * Rebuild a holding from its remaining BUY and SELL history.
+     */
+    private function recalculateHolding(
+        Portfolio $portfolio,
+        string $symbol,
+        $transactions,
+        ?Holding $holding
+    ): void {
+        $quantity = 0.0;
+        $totalCost = 0.0;
+        $lastBuyPrice = null;
+
+        foreach ($transactions as $transaction) {
+            $tradeQuantity = (float) $transaction->quantity;
+            $unitPrice = (float) $transaction->unit_price;
+
+            if ($transaction->type === 'buy') {
+                $quantity += $tradeQuantity;
+                $totalCost += $tradeQuantity * $unitPrice;
+                $lastBuyPrice = $unitPrice;
+            } elseif ($transaction->type === 'sell') {
+                if ($tradeQuantity > $quantity + 0.000001) {
+                    throw ValidationException::withMessages([
+                        'transaction' => 'This transaction cannot be deleted because the remaining sales would exceed the available holdings.',
+                    ]);
+                }
+
+                $averageCost = $quantity > 0
+                    ? $totalCost / $quantity
+                    : 0;
+
+                $totalCost -= $averageCost * $tradeQuantity;
+                $quantity -= $tradeQuantity;
+
+                if ($quantity < 0.000001) {
+                    $quantity = 0.0;
+                    $totalCost = 0.0;
+                }
+            }
+        }
+
+        $quantity = round($quantity, 6);
+
+        if ($quantity <= 0) {
+            if ($holding) {
+                $holding->delete();
+            }
+
+            return;
+        }
+
+        $averageCost = round($totalCost / $quantity, 4);
+
+        if ($holding) {
+            $holding->update([
+                'quantity' => $quantity,
+                'purchase_price' => $averageCost,
+            ]);
+
+            return;
+        }
+
+        $instrument = self::INSTRUMENTS[$symbol] ?? null;
+
+        if (!$instrument) {
+            throw ValidationException::withMessages([
+                'instrument' => 'The investment instrument is not supported.',
+            ]);
+        }
+
+        Holding::create([
+            'portfolio_id' => $portfolio->id,
+            'user_id' => $portfolio->user_id,
+            'asset_name' => $instrument['name'],
+            'symbol' => $symbol,
+            'asset_type' => $instrument['asset_type'],
+            'quantity' => $quantity,
+            'purchase_price' => $averageCost,
+            'current_price' => round($lastBuyPrice ?? $averageCost, 4),
         ]);
     }
 
