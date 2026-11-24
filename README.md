@@ -341,7 +341,44 @@ npm run build
 
 ## Screenshots and Demo
 
-Screenshots of the application and live demo links will be added here after deployment.
+The following screenshots demonstrate the deployed FinTrack application using fictional demonstration data.
+
+### Dashboard
+![FinTrack Dashboard](docs/screenshots/dashboard.png)
+
+### Portfolios
+![Portfolio List](docs/screenshots/portfolios.png)
+
+### Transactions
+![Investment Transactions](docs/screenshots/transactions.png)
+
+### Holdings
+![Investment Holdings](docs/screenshots/holdings.png)
+
+### Live Application
+
+- Frontend: https://fintrack-jikx.onrender.com
+- Backend API: https://fintrack-production-e3993c19.up.railway.app/api
+- Swagger Documentation: https://fintrack-production-e3993c19.up.railway.app/api/documentation
+
+## Deployment
+
+- Frontend hosted on Render.
+- Laravel backend and MySQL database hosted on Railway.
+- Frontend communicates with the backend through HTTPS.
+- Production secrets are configured using hosting platform environment variables.
+- Production environment uses APP_DEBUG=false.
+- The deployment is intended to remain available for at least 14 days after assessment submission.
+
+## Demo Account
+
+A dedicated live demonstration account is available for assessment reviewers.
+
+- Email: demo@gmail.com
+- Password: Demo1234
+
+The account contains fictional sample portfolios and investment transactions for testing the application. These credentials are exclusively for assessment demonstration.
+
 
 ## Deployment
 
