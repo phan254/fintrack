@@ -1,4 +1,4 @@
-# FinTrack by Finnet Technologies
+ # FinTrack by Finnet Technologies
 
 FinTrack is a portfolio and investment transaction tracking application built with Laravel and React. It enables users to manage investment portfolios, record financial transactions, monitor investment holdings, and review portfolio performance.
 
@@ -10,7 +10,7 @@ FinTrack is a portfolio and investment transaction tracking application built wi
 - Frontend: https://fintrack-jikx.onrender.com
 - API: https://fintrack-production-e3993c19.up.railway.app/api
 - Swagger: https://fintrack-production-e3993c19.up.railway.app/api/documentation
-- Demo login: <demo@gmail.com> / <Demo1234>
+- Demo login: <demo@gmail.com> / < Password Demo1234>
 
 ## Features
 
