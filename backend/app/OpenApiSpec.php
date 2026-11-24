@@ -10,8 +10,8 @@ use OpenApi\Attributes as OA;
     description: 'REST API for managing investment portfolios, transactions, and holdings.'
 )]
 #[OA\Server(
-    url: 'http://127.0.0.1:8000/api',
-    description: 'Local development server'
+    url: '/api',
+    description: 'Current server'
 )]
 #[OA\SecurityScheme(
     securityScheme: 'sanctum',
