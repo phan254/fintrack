@@ -6,6 +6,12 @@ FinTrack is a portfolio and investment transaction tracking application built wi
 **Repository:** https://github.com/phan254/fintrack
 **Status:** Assessment project
 
+## Live demo
+- Frontend: https://fintrack-jikx.onrender.com
+- API: https://fintrack-production-e3993c19.up.railway.app/api
+- Swagger: https://fintrack-production-e3993c19.up.railway.app/api/documentation
+- Demo login: <demo@gmail.com> / <Demo1234>
+
 ## Features
 
 ### Authentication
