@@ -183,7 +183,7 @@ Create or configure the frontend environment file using the API base URL expecte
 
 For local development, the API base URL is:
 
-`http://127.0.0.1:8000/api`
+`https://fintrack-production-e3993c19.up.railway.app/api`
 
 Start the frontend:
 
@@ -193,7 +193,7 @@ npm run dev
 
 The frontend will be available at:
 
-`http://localhost:5173`
+`https://fintrack-jikx.onrender.com`
 
 ### 4. Run backend tests
 
@@ -214,9 +214,10 @@ npm run build
 
 ## API Documentation
 
+
 Start the Laravel backend and visit:
 
-`http://127.0.0.1:8000/api/documentation`
+`https://fintrack-production-e3993c19.up.railway.app/api/documentation`
 
 Swagger UI provides interactive documentation for authentication, portfolio, transaction, and holdings endpoints.
 
