@@ -1,0 +1,1427 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "FinTrack API",
+        "description": "REST API for managing investment portfolios, transactions, and holdings.",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/auth/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register a new user",
+                "operationId": "registerUser",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "Password123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "Password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Registration successful"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Log in and receive an API token",
+                "operationId": "loginUser",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "Password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful"
+                    },
+                    "422": {
+                        "description": "Invalid credentials or validation error"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            }
+        },
+        "/auth/me": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get the authenticated user",
+                "operationId": "getAuthenticatedUser",
+                "responses": {
+                    "200": {
+                        "description": "Authenticated user details"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Log out and revoke the current API token",
+                "operationId": "logoutUser",
+                "responses": {
+                    "200": {
+                        "description": "Logged out successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            }
+        },
+        "/portfolios": {
+            "get": {
+                "tags": [
+                    "Portfolios"
+                ],
+                "summary": "List the authenticated user portfolios",
+                "operationId": "getPortfolios",
+                "responses": {
+                    "200": {
+                        "description": "Portfolios retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Portfolios retrieved successfully."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Portfolios"
+                ],
+                "summary": "Create a new portfolio",
+                "operationId": "createPortfolio",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "currency",
+                                    "initial_balance"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "My Investment Portfolio",
+                                        "maxLength": 255
+                                    },
+                                    "client_name": {
+                                        "type": "string",
+                                        "example": "John Doe",
+                                        "nullable": true
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Long-term investments",
+                                        "nullable": true
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "example": "KES",
+                                        "maxLength": 3,
+                                        "minLength": 3
+                                    },
+                                    "initial_balance": {
+                                        "type": "number",
+                                        "format": "double",
+                                        "example": 100000,
+                                        "minimum": 0
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Portfolio created successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            }
+        },
+        "/portfolios/{portfolio}": {
+            "get": {
+                "tags": [
+                    "Portfolios"
+                ],
+                "summary": "Get one portfolio with its transactions and holdings",
+                "operationId": "getPortfolio",
+                "parameters": [
+                    {
+                        "name": "portfolio",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Portfolio retrieved successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Portfolio not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Portfolios"
+                ],
+                "summary": "Update a portfolio",
+                "operationId": "updatePortfolio",
+                "parameters": [
+                    {
+                        "name": "portfolio",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Updated Portfolio",
+                                        "maxLength": 255
+                                    },
+                                    "client_name": {
+                                        "type": "string",
+                                        "example": "John Doe",
+                                        "nullable": true
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Updated description",
+                                        "nullable": true
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "example": "KES",
+                                        "maxLength": 3,
+                                        "minLength": 3
+                                    },
+                                    "initial_balance": {
+                                        "type": "number",
+                                        "format": "double",
+                                        "example": 150000,
+                                        "minimum": 0
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Portfolio updated successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Portfolio not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Portfolios"
+                ],
+                "summary": "Delete a portfolio",
+                "operationId": "deletePortfolio",
+                "parameters": [
+                    {
+                        "name": "portfolio",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Portfolio deleted successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Portfolio not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            }
+        },
+        "/transactions": {
+            "get": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "List transactions with optional filters",
+                "operationId": "getTransactions",
+                "parameters": [
+                    {
+                        "name": "portfolio_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "income",
+                                "expense",
+                                "buy",
+                                "sell"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Transactions retrieved successfully. Paginated results."
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Create an income, expense, BUY or SELL transaction",
+                "operationId": "createTransaction",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "portfolio_id",
+                                    "type"
+                                ],
+                                "properties": {
+                                    "portfolio_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "example": "buy",
+                                        "enum": [
+                                            "income",
+                                            "expense",
+                                            "buy",
+                                            "sell"
+                                        ]
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "BUY KCB Group",
+                                        "nullable": true
+                                    },
+                                    "category": {
+                                        "type": "string",
+                                        "example": "Shares",
+                                        "nullable": true
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "example": 1000,
+                                        "nullable": true
+                                    },
+                                    "transaction_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-11-24",
+                                        "nullable": true
+                                    },
+                                    "instrument": {
+                                        "type": "string",
+                                        "example": "KCB",
+                                        "nullable": true,
+                                        "enum": [
+                                            "SCOM",
+                                            "KCB",
+                                            "EQTY",
+                                            "T-BILL-91"
+                                        ]
+                                    },
+                                    "quantity": {
+                                        "type": "number",
+                                        "format": "double",
+                                        "example": 10,
+                                        "nullable": true
+                                    },
+                                    "unit_price": {
+                                        "type": "number",
+                                        "format": "double",
+                                        "example": 42.5,
+                                        "nullable": true
+                                    },
+                                    "trade_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-11-24",
+                                        "nullable": true
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "completed",
+                                        "nullable": true,
+                                        "enum": [
+                                            "pending",
+                                            "completed",
+                                            "failed"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Transaction created successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Portfolio not found or inaccessible"
+                    },
+                    "422": {
+                        "description": "Validation error, unsupported instrument or insufficient holdings"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            }
+        },
+        "/transactions/{transaction}": {
+            "get": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Get one transaction",
+                "operationId": "getTransaction",
+                "parameters": [
+                    {
+                        "name": "transaction",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Transaction retrieved successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Transaction not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Update an income or expense transaction",
+                "description": "Investment BUY and SELL transactions cannot be edited.",
+                "operationId": "updateTransaction",
+                "parameters": [
+                    {
+                        "name": "transaction",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "portfolio_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Monthly Salary"
+                                    },
+                                    "category": {
+                                        "type": "string",
+                                        "example": "Salary"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "income",
+                                            "expense"
+                                        ]
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "example": 85000
+                                    },
+                                    "transaction_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-11-24"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "pending",
+                                            "completed",
+                                            "failed"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Transaction updated successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Transaction or portfolio not found"
+                    },
+                    "422": {
+                        "description": "Investment trades cannot be edited or validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Delete an income or expense transaction",
+                "description": "Investment BUY and SELL transactions cannot be deleted.",
+                "operationId": "deleteTransaction",
+                "parameters": [
+                    {
+                        "name": "transaction",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Transaction deleted successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Transaction not found"
+                    },
+                    "422": {
+                        "description": "Investment trades cannot be deleted"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            }
+        },
+        "/holdings": {
+            "get": {
+                "tags": [
+                    "Holdings"
+                ],
+                "summary": "List authenticated user holdings",
+                "operationId": "1216ea12bcb835368317bf1211bae81b",
+                "parameters": [
+                    {
+                        "name": "portfolio_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Holdings retrieved successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Holdings"
+                ],
+                "summary": "Create a holding",
+                "operationId": "5f066feb06fcebb617c39c79ddb5a596",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "portfolio_id",
+                                    "asset_name",
+                                    "asset_type",
+                                    "quantity",
+                                    "purchase_price"
+                                ],
+                                "properties": {
+                                    "portfolio_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "asset_name": {
+                                        "type": "string",
+                                        "example": "Safaricom PLC"
+                                    },
+                                    "symbol": {
+                                        "type": "string",
+                                        "example": "SCOM",
+                                        "nullable": true
+                                    },
+                                    "asset_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "stock",
+                                            "bond",
+                                            "cash",
+                                            "crypto",
+                                            "other"
+                                        ]
+                                    },
+                                    "quantity": {
+                                        "type": "number",
+                                        "example": 100
+                                    },
+                                    "purchase_price": {
+                                        "type": "number",
+                                        "example": 15.5
+                                    },
+                                    "current_price": {
+                                        "type": "number",
+                                        "example": 18,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Holding created successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation failed or portfolio not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            }
+        },
+        "/holdings/{holding}": {
+            "get": {
+                "tags": [
+                    "Holdings"
+                ],
+                "summary": "Get one holding",
+                "operationId": "890d42752156ca5fa7b3b3975b52dc15",
+                "parameters": [
+                    {
+                        "name": "holding",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Holding retrieved successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Holding not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Holdings"
+                ],
+                "summary": "Update a holding",
+                "operationId": "8101dec824b6a4d5a9546da302d36200",
+                "parameters": [
+                    {
+                        "name": "holding",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "portfolio_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "asset_name": {
+                                        "type": "string",
+                                        "example": "Safaricom PLC"
+                                    },
+                                    "symbol": {
+                                        "type": "string",
+                                        "example": "SCOM",
+                                        "nullable": true
+                                    },
+                                    "asset_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "stock",
+                                            "bond",
+                                            "cash",
+                                            "crypto",
+                                            "other"
+                                        ]
+                                    },
+                                    "quantity": {
+                                        "type": "number",
+                                        "example": 100
+                                    },
+                                    "purchase_price": {
+                                        "type": "number",
+                                        "example": 15.5
+                                    },
+                                    "current_price": {
+                                        "type": "number",
+                                        "example": 18
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Holding updated successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Holding or portfolio not found"
+                    },
+                    "422": {
+                        "description": "Validation failed"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Holdings"
+                ],
+                "summary": "Delete a holding",
+                "operationId": "1aea0f0931f443f0203e0c42023aa97f",
+                "parameters": [
+                    {
+                        "name": "holding",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Holding deleted successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Holding not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            }
+        },
+        "/portfolios/{portfolio}/summary": {
+            "get": {
+                "tags": [
+                    "Portfolios"
+                ],
+                "summary": "Get portfolio investment summary",
+                "operationId": "60ee139aa2d9e566a9c08914696f7422",
+                "parameters": [
+                    {
+                        "name": "portfolio",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Portfolio summary retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "currency": {
+                                                    "type": "string",
+                                                    "example": "KES"
+                                                },
+                                                "initial_balance": {
+                                                    "type": "number",
+                                                    "example": 100000
+                                                },
+                                                "income": {
+                                                    "type": "number",
+                                                    "example": 85000
+                                                },
+                                                "expenses": {
+                                                    "type": "number",
+                                                    "example": 12500
+                                                },
+                                                "investment_purchases": {
+                                                    "type": "number",
+                                                    "example": 425
+                                                },
+                                                "investment_sales": {
+                                                    "type": "number",
+                                                    "example": 90
+                                                },
+                                                "cash_balance": {
+                                                    "type": "number",
+                                                    "example": 172165
+                                                },
+                                                "total_investment_cost": {
+                                                    "type": "number",
+                                                    "example": 340
+                                                },
+                                                "holdings_value": {
+                                                    "type": "number",
+                                                    "example": 360
+                                                },
+                                                "unrealized_gain_loss": {
+                                                    "type": "number",
+                                                    "example": 20
+                                                },
+                                                "total_portfolio_value": {
+                                                    "type": "number",
+                                                    "example": 172525
+                                                },
+                                                "holdings_count": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "instruments": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "allocation": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Portfolio not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            }
+        },
+        "/portfolios/{portfolio}/transactions": {
+            "get": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "List transactions for a portfolio",
+                "operationId": "8ff35cf925142aa547db45153f0a4e45",
+                "parameters": [
+                    {
+                        "name": "portfolio",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Portfolio transactions retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Portfolio not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Create a transaction for a portfolio",
+                "operationId": "56268ec51d9eb081b3f21647343f1886",
+                "parameters": [
+                    {
+                        "name": "portfolio",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "type",
+                                    "instrument",
+                                    "quantity",
+                                    "unit_price",
+                                    "trade_date"
+                                ],
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "example": "buy",
+                                        "enum": [
+                                            "buy",
+                                            "sell"
+                                        ]
+                                    },
+                                    "instrument": {
+                                        "type": "string",
+                                        "example": "SCOM",
+                                        "enum": [
+                                            "SCOM",
+                                            "KCB",
+                                            "EQTY",
+                                            "T-BILL-91"
+                                        ]
+                                    },
+                                    "quantity": {
+                                        "type": "number",
+                                        "example": 100
+                                    },
+                                    "unit_price": {
+                                        "type": "number",
+                                        "example": 15.5
+                                    },
+                                    "trade_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-11-24"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Transaction created successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Portfolio not found"
+                    },
+                    "422": {
+                        "description": "Validation failed"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Current server"
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Enter your Laravel Sanctum API token",
+                "bearerFormat": "Bearer token",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "Authentication"
+        },
+        {
+            "name": "Portfolios",
+            "description": "Portfolios"
+        },
+        {
+            "name": "Transactions",
+            "description": "Transactions"
+        },
+        {
+            "name": "Holdings",
+            "description": "Holdings"
+        }
+    ]
+}
