@@ -380,25 +380,6 @@ A dedicated live demonstration account is available for assessment reviewers.
 The account contains fictional sample portfolios and investment transactions for testing the application. These credentials are exclusively for assessment demonstration.
 
 
-## Deployment
-
-Production deployment details will be provided here after deployment:
-
-- Frontend URL: To be added.
-- Backend API URL: To be added.
-- Swagger documentation URL: To be added.
-
-The production application should use HTTPS, a managed database, production environment settings, and restricted CORS configuration.
-
-## Demo Account
-
-For assessment demonstration, the following local demo account is available:
-
-- Email: `demo@fintrack.test`
-- Password: `FinTrackDemo@2026`
-
-These are local development credentials. Configure a separate demo account for the live deployment and do not reuse production secrets in this repository.
-
 ## AI Tool Usage
 
 AI assistance was used during development to support:
