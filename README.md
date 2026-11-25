@@ -1,127 +1,128 @@
- # FinTrack by Finnet Technologies
+# FinTrack by Finnet Technologies
 
-FinTrack is a portfolio and investment transaction tracking application built with Laravel and React. It enables users to manage investment portfolios, record financial transactions, monitor investment holdings, and review portfolio performance.
+FinTrack is a branded portfolio and investment transactions tracker. An analyst can register client portfolios, record income, expense, BUY and SELL transactions against them, and review current holdings and a performance summary at a glance.
 
-**Project:** Finnet Technologies Software Developer Technical Assessment
-**Repository:** https://github.com/phan254/fintrack
-**Status:** Assessment project
+It is a full-stack application: a **Laravel REST API** with token authentication and a **React single-page app** that consumes only that API.
+
+> Built for the Finnet Technologies Software Developer Technical Assessment. All data in the application is fictional.
 
 ## Live demo
-- Frontend: https://fintrack-jikx.onrender.com
-- API: https://fintrack-production-e3993c19.up.railway.app/api
-- Swagger: https://fintrack-production-e3993c19.up.railway.app/api/documentation
-- Demo login: <demo@gmail.com> / < Password Demo1234>
+
+| | |
+|---|---|
+| Frontend | https://fintrack-jikx.onrender.com |
+| API base URL | https://fintrack-production-e3993c19.up.railway.app/api |
+| API documentation (Swagger) | https://fintrack-production-e3993c19.up.railway.app/api/documentation |
+| Repository | https://github.com/phan254/fintrack |
+
+**Demo login**
+
+- Email: `demo@gmail.com`
+- Password: `Demo1234`
+
+The demo account contains fictional sample portfolios and transactions. The credentials are for assessment review only.
+
+> The free hosting plans may take a few seconds to wake up on the first request.
+
+## Screenshots
+
+| Dashboard | Portfolios |
+|---|---|
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Portfolios](docs/screenshots/portfolios.png) |
+
+| Transactions | Holdings |
+|---|---|
+| ![Transactions](docs/screenshots/transactions.png) | ![Holdings](docs/screenshots/holdings.png) |
 
 ## Features
 
-### Authentication
-- User registration and login.
-- Laravel Sanctum bearer-token authentication.
-- Protected API endpoints.
-- Password hashing and authenticated user access.
+### Backend API
 
-### Portfolio Management
-- Create, view, update, and delete portfolios.
-- Support for KES and USD currencies.
-- Track initial portfolio balances.
-- Restrict portfolio access to the authenticated owner.
-
-### Investment Transactions
-- Record BUY and SELL transactions.
-- Support for the following investment instruments:
-  - SCOM – Safaricom PLC
-  - KCB – KCB Group
-  - EQTY – Equity Group
-  - T-BILL-91 – 91-Day Treasury Bill
-- Record investment quantities, unit prices, and trade dates.
-- Validate available holdings before processing sales.
-- Record income and expense transactions.
-- Delete transactions with automatic holding recalculation.
-- Prevent deletion of an investment transaction when the remaining trade history would result in an invalid sale.
-
-### Holdings and Portfolio Summary
-- Track investment holdings and quantities.
-- Calculate weighted average purchase costs.
-- Calculate current holding values and unrealized gains or losses.
-- View cash balance and total portfolio value.
-- View asset allocation by asset type.
-
-### API Documentation
-- OpenAPI specification.
-- Interactive Swagger UI.
-- Documented authentication and protected API endpoints.
-
-## Technology Stack
-
-### Backend
-- PHP 8.4
-- Laravel 13
-- Laravel Sanctum
-- MySQL
-- PHPUnit
-- L5-Swagger / OpenAPI
+- **Authentication:** register, log in, log out and fetch the current user. Passwords are hashed, and all other endpoints are protected with Laravel Sanctum bearer tokens. Tokens expire after a configurable period (default 8 hours).
+- **Portfolios:** full CRUD with name, client name, base currency (KES or USD), opening balance and created date. Each portfolio belongs to the authenticated user, and other users' portfolios return `404`.
+- **Transactions:** income, expense, BUY and SELL records. Supported instruments are `SCOM`, `KCB`, `EQTY` and `T-BILL-91`.
+- **Holdings summary:** per-instrument net quantity, weighted average cost, total invested, current value and unrealised gain or loss, plus cash balance, total portfolio value and allocation by asset type.
+- **Validation and errors:** invalid input (negative or zero quantities, unknown instruments, selling more than held, unknown portfolios) is rejected with the correct HTTP status code and a consistent JSON error body.
+- **Safe deletes:** deleting an investment transaction recalculates the holding from the remaining trade history, and is refused if the remaining history would contain an invalid sale.
+- **Persistence:** MySQL with migrations and a seeder.
+- **API documentation:** OpenAPI annotations generate an interactive Swagger UI.
 
 ### Frontend
-- React
-- Vite
-- JavaScript
-- Axios
-- CSS
+
+- Login and register screens with form validation and clear error messages.
+- Session handling: the token is checked on load, and an expired or rejected session returns the user to the login screen with a message.
+- Portfolio list with create, edit and delete (with a confirmation before deleting).
+- Transaction table with search, type filter and sorting, plus forms for income, expense, BUY and SELL.
+- Holdings page with positions, average cost, current value and gain or loss.
+- Data visualisation: a transaction activity chart and a portfolio allocation bar.
+- Loading, empty and error states for every API call.
+- Currency formatting per portfolio, with income and expense colours shown alongside `+` and `-` signs.
+- Responsive layout for desktop and mobile.
+- Separate URLs for each page (`/`, `/portfolios`, `/transactions`, `/holdings`, `/settings`).
+- Branding: "FinTrack by Finnet Technologies", the Finnet logo as the header logo and favicon, and a navy and blue palette.
 
 ## Architecture
 
-FinTrack uses a client-server architecture.
+```
+React SPA (Vite)  --HTTPS/JSON-->  Laravel REST API  -->  MySQL
+  Render (static)                   Railway               Railway
+```
 
-- **Frontend:** React single-page application built with Vite. It provides the user interface for authentication, portfolio management, transactions, holdings, and portfolio summaries.
-- **Backend:** Laravel REST API responsible for authentication, validation, business logic, transaction processing, and investment calculations.
-- **Database:** MySQL stores user accounts, portfolios, transactions, and holdings.
-- **Authentication:** Laravel Sanctum provides bearer-token authentication for protected API routes.
-- **API documentation:** OpenAPI annotations generate interactive Swagger documentation.
+- **Frontend:** a React single-page app built with Vite. It talks to the API through a single Axios client (`frontend/src/api.js`) that attaches the bearer token and handles expired sessions.
+- **Backend:** a Laravel API. Controllers handle HTTP, form requests and validation enforce input rules, and business rules (holdings, average cost, sale limits) live on the server so every client gets the same results.
+- **Database:** MySQL stores users, portfolios, transactions and holdings.
+- **Authentication:** Laravel Sanctum personal access tokens.
+- **Documentation:** L5-Swagger generates the OpenAPI spec (`backend/storage/api-docs/api-docs.json`) and Swagger UI.
 
-The frontend communicates with the backend through HTTP requests using Axios. Financial calculations and transaction validation are handled by the backend to maintain consistent business rules.
+## Technology stack and rationale
 
-## Technology Choices
+| Layer | Technology | Why |
+|---|---|---|
+| API | PHP 8.4, Laravel 13 | Mature framework with migrations, an ORM, request validation and built-in auth tooling |
+| Auth | Laravel Sanctum | Simple token authentication suited to an SPA and API |
+| Database | MySQL | Relational storage that fits financial records |
+| API docs | L5-Swagger (OpenAPI) | Interactive documentation generated from the code |
+| Tests | PHPUnit | Feature tests for the API |
+| Frontend | React 19, Vite | Fast development and small production builds |
+| Routing | React Router | Separate URLs for each page |
+| HTTP | Axios | Interceptors for the token and session expiry |
+| Charts | Recharts | Declarative charts for React |
+| Icons | Lucide React | Consistent icon set |
+| Hosting | Railway (API and MySQL), Render (static frontend) | Managed hosting with HTTPS and environment variables |
 
-- **Laravel:** Provides API development tools, database migrations, Eloquent ORM, request validation, and authentication support.
-- **React:** Supports reusable interface components and a responsive single-page application.
-- **MySQL:** Provides relational storage for financial and investment records.
-- **Laravel Sanctum:** Provides authentication for protected API endpoints.
-- **OpenAPI / Swagger:** Makes the API easier to understand, test, and integrate with.
-- **Vite:** Provides frontend development and production build tooling.
+## Repository structure
 
-## Project Structure
-
-```text
+```
 fintrack/
-├── backend/
+├── backend/                 Laravel API
 │   ├── app/
 │   │   ├── Http/Controllers/Api/
 │   │   └── Models/
+│   ├── config/
 │   ├── database/
 │   │   ├── migrations/
 │   │   └── seeders/
 │   ├── routes/
-│   ├── tests/
-│   └── ...
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   └── ...
+│   ├── storage/api-docs/    Generated OpenAPI spec
+│   └── tests/
+├── frontend/                React app
+│   ├── public/              Logo and favicon
+│   └── src/
+│       ├── App.jsx          Pages, routes and forms
+│       ├── AuthGate.jsx     Login, register and session handling
+│       └── api.js           API client
+├── docs/screenshots/
 └── README.md
 ```
 
-## Requirements
+## Run it locally
 
-Install the following before setting up the project:
+### Requirements
 
-- PHP 8.4 or a compatible version.
-- Composer.
-- Node.js and npm.
-- MySQL.
-- Git.
-- A modern web browser.
-
-## Installation and Setup
+- PHP 8.4 or later and Composer
+- Node.js 20.19 or later (or 22.12 or later) and npm
+- MySQL
+- Git
 
 ### 1. Clone the repository
 
@@ -130,28 +131,18 @@ git clone https://github.com/phan254/fintrack.git
 cd fintrack
 ```
 
-### 2. Set up the Laravel backend
+### 2. Set up the backend
 
 ```bash
 cd backend
 composer install
-```
-
-Create the environment file:
-
-```bash
-copy .env.example .env
-```
-
-Generate the application key:
-
-```bash
+cp .env.example .env        # on Windows: copy .env.example .env
 php artisan key:generate
 ```
 
-Configure the database connection in `backend/.env`:
+Create an empty MySQL database named `fintrack_db`, then check these values in `backend/.env`:
 
-```env
+```
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
@@ -160,240 +151,160 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-Create a MySQL database named `fintrack_db`, then run:
+Run the migrations (add `--seed` to create the default test user from `DatabaseSeeder`):
 
 ```bash
-php artisan migrate
-```
-
-Start the backend development server:
-
-```bash
+php artisan migrate --seed
 php artisan serve
 ```
 
-The backend will be available at:
+The API runs at http://127.0.0.1:8000 and the Swagger UI at http://127.0.0.1:8000/api/documentation.
 
-`http://127.0.0.1:8000`
+### 3. Set up the frontend
 
-### 3. Set up the React frontend
-
-Open another terminal from the project root:
+In a second terminal:
 
 ```bash
 cd frontend
 npm install
-```
-
-Create or configure the frontend environment file using the API base URL expected by the frontend configuration.
-
-For local development, the API base URL is:
-
-`https://fintrack-production-e3993c19.up.railway.app/api`
-
-Start the frontend:
-
-```bash
 npm run dev
 ```
 
-The frontend will be available at:
+The app runs at http://127.0.0.1:5173. In development, Vite proxies `/api` requests to `http://127.0.0.1:8000`, so no frontend environment file is needed. Register a new account on the login screen to start.
 
-`https://fintrack-jikx.onrender.com`
+### Environment variables
 
-### 4. Run backend tests
+**Backend (`backend/.env`)**
 
-From the backend directory:
+| Variable | Purpose |
+|---|---|
+| `APP_KEY` | Application key, generated with `php artisan key:generate` |
+| `APP_ENV`, `APP_DEBUG`, `APP_URL` | Environment settings (`APP_DEBUG=false` in production) |
+| `DB_*` | MySQL connection |
+| `FRONTEND_URL` | The one frontend origin allowed by CORS |
+| `SANCTUM_EXPIRATION` | Token lifetime in minutes (default 480) |
+
+**Frontend**
+
+| Variable | Purpose |
+|---|---|
+| `VITE_API_URL` | API base URL for production builds, for example `https://fintrack-production-e3993c19.up.railway.app/api`. If unset, the app uses `/api` (the development proxy) |
+
+No real secrets are committed. Copy the `.env.example` files and fill in your own values.
+
+## Testing
+
+Backend feature tests (run from `backend/`):
 
 ```bash
 php artisan test
 ```
 
-### 5. Check frontend quality
+They cover authentication and portfolio ownership, portfolio creation, BUY transactions and weighted average cost, SELL transactions and insufficient-holdings validation, unsupported instruments, portfolio summary calculations, and deleting investment transactions with holding recalculation. At the last run, 12 tests (62 assertions) passed.
 
-From the frontend directory:
+Frontend checks (run from `frontend/`):
 
 ```bash
 npm run lint
 npm run build
 ```
 
-## API Documentation
+## API overview
 
+All endpoints are prefixed with `/api`. Everything except register and login requires `Authorization: Bearer <token>`. Full request and response details are in the Swagger UI.
 
-Start the Laravel backend and visit:
-
-`https://fintrack-production-e3993c19.up.railway.app/api/documentation`
-
-Swagger UI provides interactive documentation for authentication, portfolio, transaction, and holdings endpoints.
-
-Protected endpoints require a valid Laravel Sanctum bearer token.
-
-To regenerate the Swagger documentation:
-
-```bash
-php artisan l5-swagger:generate
-```
-
-## Main API Endpoints
-
-All endpoints are prefixed with `/api`.
-
-### Authentication
+**Authentication**
 
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/auth/register` | Register a user |
-| POST | `/auth/login` | Authenticate a user |
-| GET | `/auth/me` | Get authenticated user |
-| POST | `/auth/logout` | Log out |
+| POST | `/auth/register` | Register a user and receive a token |
+| POST | `/auth/login` | Log in and receive a token |
+| GET | `/auth/me` | Get the authenticated user |
+| POST | `/auth/logout` | Revoke the current token |
 
-### Portfolios
+**Portfolios**
 
 | Method | Endpoint | Description |
 |---|---|---|
 | GET | `/portfolios` | List portfolios |
-| POST | `/portfolios` | Create portfolio |
-| GET | `/portfolios/{portfolio}` | View portfolio |
-| PUT/PATCH | `/portfolios/{portfolio}` | Update portfolio |
-| DELETE | `/portfolios/{portfolio}` | Delete portfolio |
-| GET | `/portfolios/{portfolio}/summary` | View portfolio summary |
-| GET | `/portfolios/{portfolio}/transactions` | List portfolio transactions |
-| POST | `/portfolios/{portfolio}/transactions` | Create portfolio transaction |
+| POST | `/portfolios` | Create a portfolio |
+| GET | `/portfolios/{portfolio}` | View a portfolio |
+| PUT/PATCH | `/portfolios/{portfolio}` | Update a portfolio |
+| DELETE | `/portfolios/{portfolio}` | Delete a portfolio |
+| GET | `/portfolios/{portfolio}/summary` | Holdings and performance summary |
+| GET | `/portfolios/{portfolio}/transactions` | List a portfolio's transactions |
+| POST | `/portfolios/{portfolio}/transactions` | Record a BUY or SELL |
 
-### Transactions
+**Transactions**
 
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/transactions` | List transactions |
-| POST | `/transactions` | Create transaction |
-| GET | `/transactions/{transaction}` | View transaction |
-| PUT/PATCH | `/transactions/{transaction}` | Update income or expense transaction |
-| DELETE | `/transactions/{transaction}` | Delete transaction |
+| GET | `/transactions` | List transactions (filters: `portfolio_id`, `type`, `category`, `search`) |
+| POST | `/transactions` | Create an income, expense, BUY or SELL |
+| GET | `/transactions/{transaction}` | View a transaction |
+| PUT/PATCH | `/transactions/{transaction}` | Update an income or expense |
+| DELETE | `/transactions/{transaction}` | Delete a transaction |
 
-Investment BUY and SELL transactions cannot be edited directly. Deleting an investment transaction recalculates the associated holding from the remaining trade history.
+BUY and SELL transactions cannot be edited. Deleting one recalculates the holding.
 
-### Holdings
+**Holdings**
 
 | Method | Endpoint | Description |
 |---|---|---|
 | GET | `/holdings` | List holdings |
-| POST | `/holdings` | Create holding |
-| GET | `/holdings/{holding}` | View holding |
-| PUT/PATCH | `/holdings/{holding}` | Update holding |
-| DELETE | `/holdings/{holding}` | Delete holding |
-
-See Swagger UI for request parameters, validation rules, and response details.
-
-## Assumptions and Trade-offs
-
-- FinTrack supports KES and USD portfolio currencies.
-- Supported investment instruments are SCOM, KCB, EQTY, and T-BILL-91.
-- BUY and SELL transactions update investment quantities and weighted average purchase costs.
-- A sale cannot exceed the available holding quantity.
-- Portfolio and transaction records are scoped to the authenticated user.
-- Investment valuations use recorded current prices. The application does not currently retrieve live market prices.
-- Treasury Bill valuations use recorded transaction and price information rather than an external market-data feed.
-- The application is an assessment prototype and does not execute brokerage trades, integrate with banks, or provide financial advice.
-
-## Security
-
-- Passwords are hashed before storage.
-- Sanctum bearer tokens protect authenticated API routes.
-- Portfolio and investment records are associated with authenticated users.
-- Investment transactions validate quantities and available holdings.
-- Environment files and credentials must not be committed to version control.
-- Production deployments should use HTTPS and secure environment configuration.
-
-## Testing
-
-The backend includes automated feature tests covering:
-
-- Authentication and portfolio ownership.
-- Portfolio creation.
-- Investment purchases and weighted average costs.
-- Investment sales and insufficient holdings validation.
-- Unsupported investment instruments.
-- Portfolio summary calculations.
-- Investment transaction deletion and holding recalculation.
-
-Run the backend test suite using:
-
-```bash
-php artisan test
-```
-
-Frontend quality checks:
-
-```bash
-npm run lint
-npm run build
-```
-
-## Future Improvements
-
-- Integrate a reliable market-data provider.
-- Add CSV export for transactions and portfolio summaries.
-- Expand automated frontend testing.
-- Introduce continuous integration and automated deployment.
-- Add more investment instruments.
-- Deploy with HTTPS and a managed production database.
-
-## Screenshots and Demo
-
-The following screenshots demonstrate the deployed FinTrack application using fictional demonstration data.
-
-### Dashboard
-![FinTrack Dashboard](docs/screenshots/dashboard.png)
-
-### Portfolios
-![Portfolio List](docs/screenshots/portfolios.png)
-
-### Transactions
-![Investment Transactions](docs/screenshots/transactions.png)
-
-### Holdings
-![Investment Holdings](docs/screenshots/holdings.png)
-
-### Live Application
-
-- Frontend: https://fintrack-jikx.onrender.com
-- Backend API: https://fintrack-production-e3993c19.up.railway.app/api
-- Swagger Documentation: https://fintrack-production-e3993c19.up.railway.app/api/documentation
+| POST | `/holdings` | Create a holding |
+| GET | `/holdings/{holding}` | View a holding |
+| PUT/PATCH | `/holdings/{holding}` | Update a holding |
+| DELETE | `/holdings/{holding}` | Delete a holding |
 
 ## Deployment
 
-- Frontend hosted on Render.
-- Laravel backend and MySQL database hosted on Railway.
-- Frontend communicates with the backend through HTTPS.
-- Production secrets are configured using hosting platform environment variables.
-- Production environment uses APP_DEBUG=false.
-- The deployment is intended to remain available for at least 14 days after assessment submission.
+**Backend and database (Railway)**
 
-## Demo Account
+1. Create a project, add a MySQL service, and add this repository as a service.
+2. Set the service Root Directory to `/backend` and the deploy branch to `main`.
+3. Set the variables listed above, with the `DB_*` values referencing the MySQL service's variables.
+4. Set the pre-deploy command to `php artisan migrate --force`.
+5. Generate a public domain. PHP 8.4 is selected from `composer.json`, and proxy headers are trusted so that Swagger assets load over HTTPS.
 
-A dedicated live demonstration account is available for assessment reviewers.
+**Frontend (Render)**
 
-- Email: demo@gmail.com
-- Password: Demo1234
+1. Create a static site from this repository with the branch `main`.
+2. Set Root Directory `frontend`, build command `npm install && npm run build`, and publish directory `dist`.
+3. Set `VITE_API_URL` to the Railway API URL. Vite reads it at build time, so redeploy after changing it.
+4. Add a rewrite rule from `/*` to `/index.html` so that page refreshes work.
 
-The account contains fictional sample portfolios and investment transactions for testing the application. These credentials are exclusively for assessment demonstration.
+Secrets are configured in the platforms' environment variables and are never committed. CORS is restricted to the frontend origin through `FRONTEND_URL`. The deployment is intended to stay online for at least 14 days after submission.
 
+## Assumptions and trade-offs
 
-## AI Tool Usage
+- Portfolios support KES and USD. Instruments are limited to SCOM, KCB, EQTY and T-BILL-91.
+- Valuations use recorded prices from transactions. There is no live market-data feed, and the UI says so.
+- A sale cannot exceed the quantity held, and BUY and SELL records are immutable, so history stays consistent. Deleting one recalculates the holding.
+- Records are scoped to the authenticated user rather than shared across a team. There are no roles or permissions.
+- The sample data in the live demo was entered through the application. `php artisan migrate --seed` only creates the default test user.
+- Pages are switched in one large component (`App.jsx`), and the login screen uses inline styles. Both were quicker to build, and splitting them into components and shared CSS tokens would be the first clean-up.
+- Authentication tokens are stored in `localStorage`, which is simple but exposed to XSS. A production system would prefer HttpOnly cookies.
 
-AI assistance was used during development to support:
+## Next steps
 
-- Reviewing and improving Laravel API implementation.
-- Troubleshooting PHP, React, and configuration issues.
-- Preparing and reviewing API documentation.
-- Developing and refining project documentation.
-- Reviewing automated test results and identifying missing requirements.
+- Seed a full demo dataset (portfolios and transactions) for the demo user.
+- Add frontend component tests, Docker Compose, and a CI pipeline for lint and tests.
+- Add CSV export and pagination controls for transactions.
+- Add live market-data integration and dark mode using the shared design tokens.
+- Split `App.jsx` into page components and move all styles to design tokens.
 
-Generated suggestions were reviewed and tested within the project development environment. The developer remains responsible for the implementation, verification, and final submission.
+## AI tool usage
 
-## Project Branding
+AI assistants were used during development for:
 
-**FinTrack by Finnet Technologies**
+- Reviewing and improving the Laravel API implementation.
+- Troubleshooting PHP, React, deployment and configuration issues.
+- Preparing API documentation and project documentation.
+- Reviewing test results and identifying missing requirements.
 
-A portfolio and investment tracking solution.
+Suggestions were reviewed and tested in the project environment. The developer is responsible for the implementation, verification and final submission.
+
+## Author
+
+Phanuel Disi, [github.com/phan254](https://github.com/phan254)
