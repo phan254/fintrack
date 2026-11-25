@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Eye,
   EyeOff,
@@ -17,6 +18,7 @@ const initialForm = {
 }
 
 export default function AuthGate() {
+  const navigate = useNavigate()
   const [user, setUser] = useState(null)
   const [mode, setMode] = useState('login')
   const [form, setForm] = useState(initialForm)
@@ -125,6 +127,7 @@ export default function AuthGate() {
       }
 
       localStorage.setItem('fintrack_token', data.token)
+      navigate('/')
       setUser(data.user ?? {
         name: form.name,
         email: form.email,
@@ -356,7 +359,7 @@ export default function AuthGate() {
         </div>
 
         <div style={styles.footer}>
-          © 2026 FinTrack by Finnet Technologies
+          Â© 2026 FinTrack by Finnet Technologies
         </div>
       </div>
     </div>

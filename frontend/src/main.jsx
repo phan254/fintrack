@@ -1,10 +1,12 @@
-import React from 'react'
+﻿import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
 import AuthGate from './AuthGate'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <AuthGate />
+    <BrowserRouter>`r`n      <AuthGate />`r`n    </BrowserRouter>
   </React.StrictMode>,
 )
+

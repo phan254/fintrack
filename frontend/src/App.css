@@ -1154,3 +1154,14 @@ td.expense {
     min-width: 0;
   }
 }
+
+/* Finnet-aligned allocation palette */
+.bar-stocks { background: var(--chart-1); }
+.bar-bonds { background: var(--chart-2); }
+.bar-cash { background: var(--chart-3); }
+.bar-other { background: var(--chart-4); }
+.dot-blue { background: var(--chart-1); }
+.dot-green { background: var(--chart-2); }
+.dot-navy { background: var(--chart-3); }
+.dot-grey { background: var(--chart-4); }
+

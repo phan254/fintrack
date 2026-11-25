@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom'
+﻿import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Wallet, ArrowLeftRight, PieChart, Settings,
   Bell, Search, Plus, TrendingUp, TrendingDown, ArrowUpRight,
@@ -459,11 +459,11 @@ function App({ onLogout }) {
     const colors = {
       stock: 'blue',
       stocks: 'blue',
-      bond: 'purple',
-      bonds: 'purple',
-      cash: 'green',
-      crypto: 'orange',
-      other: 'orange',
+      bond: 'green',
+      bonds: 'green',
+      cash: 'navy',
+      crypto: 'grey',
+      other: 'grey',
     }
 
     return entries.map((item) => ({
@@ -474,7 +474,7 @@ function App({ onLogout }) {
       percentage: total > 0
         ? ((Number(item.value) || 0) / total) * 100
         : 0,
-      color: colors[String(item.asset_type || 'other').toLowerCase()] || 'orange',
+      color: colors[String(item.asset_type || 'other').toLowerCase()] || 'grey',
     }))
   }, [summary])
 
@@ -771,9 +771,9 @@ function App({ onLogout }) {
 
   const allocationBarClasses = {
     blue: 'bar-stocks',
-    purple: 'bar-bonds',
-    green: 'bar-cash',
-    orange: 'bar-other',
+    green: 'bar-bonds',
+    navy: 'bar-cash',
+    grey: 'bar-other',
   }
 
   // TRANSACTION TABLE
@@ -2247,13 +2247,7 @@ function App({ onLogout }) {
   )
 }
 
-// The router wraps the app so each page gets its own URL.
-function Root({ onLogout }) {
-  return (
-    <BrowserRouter>
-      <App onLogout={onLogout} />
-    </BrowserRouter>
-  )
-}
+export default App
 
-export default Root
+
+
