@@ -26,6 +26,24 @@ export default function AuthGate() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [notice, setNotice] = useState('')
+
+  // The API client fires this event when the saved token is rejected.
+  useEffect(() => {
+    const handleExpired = () => {
+      setUser(null)
+      setForm(initialForm)
+      setMode('login')
+      setLoading(false)
+      setNotice('Your session has expired. Please sign in again.')
+    }
+
+    window.addEventListener('fintrack:session-expired', handleExpired)
+
+    return () => {
+      window.removeEventListener('fintrack:session-expired', handleExpired)
+    }
+  }, [])
 
   useEffect(() => {
     const token = localStorage.getItem('fintrack_token')
@@ -71,6 +89,7 @@ export default function AuthGate() {
   const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
+    setNotice('')
 
     if (mode === 'register' && form.password !== form.password_confirmation) {
       setError('Your passwords do not match.')
@@ -140,6 +159,7 @@ export default function AuthGate() {
     setUser(null)
     setForm(initialForm)
     setMode('login')
+    setNotice('')
   }
 
   if (loading) {
@@ -189,6 +209,12 @@ export default function AuthGate() {
               : 'Sign in to manage your portfolios and transactions.'}
           </p>
         </div>
+
+        {notice && (
+          <div role="status" style={styles.notice}>
+            {notice}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           {isRegister && (
@@ -432,6 +458,14 @@ const styles = {
     fontSize: 14,
     fontWeight: 700,
     marginTop: 8,
+  },
+  notice: {
+    padding: '11px 13px',
+    marginBottom: 18,
+    borderRadius: 8,
+    background: '#eef3ff',
+    color: '#244bb8',
+    fontSize: 13,
   },
   error: {
     padding: '11px 13px',

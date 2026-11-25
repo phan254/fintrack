@@ -1,4 +1,3 @@
-
 import axios from 'axios'
 
 const api = axios.create({
@@ -18,6 +17,28 @@ api.interceptors.request.use((config) => {
 
   return config
 })
+
+// When the API rejects the saved token (expired or revoked), clear it and
+// tell the app so it can return to the login screen.
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const url = error.config?.url || ''
+    const isCredentialCheck =
+      url.includes('/auth/login') || url.includes('/auth/register')
+
+    if (
+      error.response?.status === 401 &&
+      !isCredentialCheck &&
+      localStorage.getItem('fintrack_token')
+    ) {
+      localStorage.removeItem('fintrack_token')
+      window.dispatchEvent(new Event('fintrack:session-expired'))
+    }
+
+    return Promise.reject(error)
+  },
+)
 
 export const authAPI = {
   register: (data) => api.post('/auth/register', data),
