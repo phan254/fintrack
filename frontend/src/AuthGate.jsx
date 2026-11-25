@@ -170,10 +170,10 @@ export default function AuthGate() {
           alt="Finnet logo"
           style={styles.logoImage}
         />
-        <h2 style={{ margin: '14px 0 5px', color: '#19243a' }}>
+        <h2 style={{ margin: '14px 0 5px', color: 'var(--color-text)' }}>
           FinTrack
         </h2>
-        <p style={{ color: '#8992a3', fontSize: 14 }}>
+        <p style={{ color: 'var(--color-muted)', fontSize: 14 }}>
           Checking your session...
         </p>
       </div>
@@ -370,15 +370,15 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     padding: '30px 16px',
-    background: '#f5f7fb',
+    background: 'var(--color-background)',
     fontFamily: 'Inter, system-ui, sans-serif',
   },
   authCard: {
     width: '100%',
     maxWidth: 440,
     padding: '38px 34px',
-    background: '#fff',
-    border: '1px solid #edf0f5',
+    background: 'var(--color-surface)',
+    border: '1px solid var(--color-border)',
     borderRadius: 18,
     boxShadow: '0 15px 50px rgba(25,36,58,0.07)',
   },
@@ -395,13 +395,13 @@ const styles = {
   },
   brandName: {
     margin: '13px 0 2px',
-    color: '#19243a',
+    color: 'var(--color-text)',
     fontSize: 26,
     fontWeight: 800,
   },
   brandSubtitle: {
     margin: 0,
-    color: '#8992a3',
+    color: 'var(--color-muted)',
     fontSize: 12,
   },
   headingArea: {
@@ -415,7 +415,7 @@ const styles = {
     marginBottom: 8,
     fontSize: 13,
     fontWeight: 600,
-    color: '#344054',
+    color: 'var(--color-text)',
   },
   inputWrapper: {
     display: 'flex',
@@ -424,10 +424,10 @@ const styles = {
     borderRadius: 9,
     minHeight: 47,
     padding: '0 12px',
-    background: '#fff',
+    background: 'var(--color-surface)',
   },
   inputIcon: {
-    color: '#9299a8',
+    color: 'var(--color-muted)',
     flexShrink: 0,
   },
   input: {
@@ -437,13 +437,13 @@ const styles = {
     outline: 'none',
     padding: '12px 10px',
     fontSize: 14,
-    color: '#19243a',
+    color: 'var(--color-text)',
     background: 'transparent',
   },
   eyeButton: {
     border: 'none',
     background: 'transparent',
-    color: '#8992a3',
+    color: 'var(--color-muted)',
     cursor: 'pointer',
     display: 'flex',
     padding: 5,
@@ -453,8 +453,8 @@ const styles = {
     minHeight: 48,
     border: 'none',
     borderRadius: 9,
-    background: '#315eea',
-    color: '#fff',
+    background: 'var(--color-accent)',
+    color: 'var(--color-on-accent)',
     fontSize: 14,
     fontWeight: 700,
     marginTop: 8,
@@ -463,8 +463,8 @@ const styles = {
     padding: '11px 13px',
     marginBottom: 18,
     borderRadius: 8,
-    background: '#eef3ff',
-    color: '#244bb8',
+    background: 'var(--color-accent-soft)',
+    color: 'var(--color-primary)',
     fontSize: 13,
   },
   error: {
@@ -472,29 +472,29 @@ const styles = {
     marginBottom: 14,
     borderRadius: 8,
     background: '#fff0f0',
-    color: '#bd3030',
+    color: 'var(--color-negative)',
     fontSize: 13,
   },
   switchArea: {
     textAlign: 'center',
     marginTop: 25,
-    color: '#737d90',
+    color: 'var(--color-muted)',
     fontSize: 13,
   },
   switchButton: {
     marginLeft: 5,
     border: 'none',
     background: 'transparent',
-    color: '#315eea',
+    color: 'var(--color-primary)',
     fontWeight: 700,
     cursor: 'pointer',
   },
   footer: {
-    borderTop: '1px solid #edf0f5',
+    borderTop: '1px solid var(--color-border)',
     marginTop: 28,
     paddingTop: 19,
     textAlign: 'center',
-    color: '#a0a7b4',
+    color: 'var(--color-muted)',
     fontSize: 11,
   },
   loadingScreen: {
@@ -503,7 +503,7 @@ const styles = {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    background: '#f5f7fb',
+    background: 'var(--color-background)',
     fontFamily: 'Inter, system-ui, sans-serif',
   },
 }

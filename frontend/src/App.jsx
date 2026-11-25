@@ -926,7 +926,7 @@ function App({ onLogout }) {
             style={{
               height: 40,
               width: 'auto',
-              background: '#fff',
+              background: 'var(--color-surface)',
               borderRadius: 8,
               padding: 4,
             }}
@@ -1252,29 +1252,29 @@ function App({ onLogout }) {
                               x2="0"
                               y2="1"
                             >
-                              <stop offset="0%" stopColor="#315eea" stopOpacity={0.22} />
-                              <stop offset="100%" stopColor="#315eea" stopOpacity={0} />
+                              <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.22} />
+                              <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0} />
                             </linearGradient>
                           </defs>
 
                           <CartesianGrid
                             strokeDasharray="4 4"
                             vertical={false}
-                            stroke="#edf0f5"
+                            stroke="var(--color-border)"
                           />
 
                           <XAxis
                             dataKey="month"
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: '#9299a8', fontSize: 12 }}
+                            tick={{ fill: 'var(--color-muted)', fontSize: 12 }}
                             dy={10}
                           />
 
                           <YAxis
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: '#9299a8', fontSize: 11 }}
+                            tick={{ fill: 'var(--color-muted)', fontSize: 11 }}
                             tickFormatter={(value) => (Math.abs(value) >= 1000 ? `${value / 1000}k` : String(value))}
                           />
 
@@ -1288,7 +1288,7 @@ function App({ onLogout }) {
                           <Area
                             type="monotone"
                             dataKey="value"
-                            stroke="#315eea"
+                            stroke="var(--chart-1)"
                             strokeWidth={3}
                             fill="url(#portfolioGradient)"
                           />
@@ -1410,11 +1410,11 @@ function App({ onLogout }) {
                           {money(portfolio.initial_balance, portfolio.currency || 'KES')}
                         </h2>
 
-                        <p style={{ color: '#9299a8', fontSize: 13 }}>
+                        <p style={{ color: 'var(--color-muted)', fontSize: 13 }}>
                           {portfolio.currency || 'KES'} · Opening balance
                         </p>
 
-                        <p style={{ color: '#9299a8', fontSize: 13 }}>
+                        <p style={{ color: 'var(--color-muted)', fontSize: 13 }}>
                           {portfolio.transactions_count || 0} transactions ·{' '}
                           {portfolio.holdings_count || 0} holdings
                         </p>
@@ -1636,7 +1636,7 @@ function App({ onLogout }) {
                                     </div>
                                     <div>
                                       <strong>{symbol}</strong>
-                                      <div style={{ fontSize: 12, color: '#9299a8' }}>
+                                      <div style={{ fontSize: 12, color: 'var(--color-muted)' }}>
                                         {instrumentInfo?.name || holding.asset_name || symbol}
                                       </div>
                                     </div>
@@ -1684,7 +1684,7 @@ function App({ onLogout }) {
 
                 <div className="panel" style={{ padding: 20, marginTop: 20 }}>
                   <h3>Important pricing information</h3>
-                  <p style={{ color: '#9299a8', fontSize: 13, marginTop: 8 }}>
+                  <p style={{ color: 'var(--color-muted)', fontSize: 13, marginTop: 8 }}>
                     Recorded prices are based on the prices entered when
                     transactions are recorded. They are not live Nairobi
                     Securities Exchange or Treasury Bill market prices.
@@ -2126,7 +2126,7 @@ function App({ onLogout }) {
 
               {tradeForm.type === 'sell' && (
                 <div className="panel" style={{ padding: 12, margin: '12px 0' }}>
-                  <span style={{ color: '#9299a8', fontSize: 13 }}>
+                  <span style={{ color: 'var(--color-muted)', fontSize: 13 }}>
                     Available quantity
                   </span>
                   <strong style={{ display: 'block', marginTop: 4 }}>
@@ -2187,13 +2187,13 @@ function App({ onLogout }) {
               />
 
               <div className="panel" style={{ padding: 16, marginTop: 16 }}>
-                <span style={{ color: '#9299a8', fontSize: 13 }}>
+                <span style={{ color: 'var(--color-muted)', fontSize: 13 }}>
                   Total transaction value
                 </span>
                 <h2 style={{ marginTop: 6 }}>
                   {money(tradeTotal, activeCurrency)}
                 </h2>
-                <p style={{ color: '#9299a8', fontSize: 12, marginTop: 5 }}>
+                <p style={{ color: 'var(--color-muted)', fontSize: 12, marginTop: 5 }}>
                   Quantity × Unit price
                 </p>
               </div>
