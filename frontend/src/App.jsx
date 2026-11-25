@@ -256,7 +256,9 @@ function App({ onLogout }) {
         quantity: Number(item.quantity) || 0,
         unit_price: Number(item.unit_price) || 0,
         category: item.category || 'General',
-        date: item.trade_date || item.transaction_date || item.date || '',
+        date: String(
+          item.trade_date || item.transaction_date || item.date || '',
+        ).slice(0, 10),
         amount: Number(item.amount) || 0,
         type: item.type || 'expense',
         description: item.description || '',
@@ -1273,7 +1275,7 @@ function App({ onLogout }) {
                             axisLine={false}
                             tickLine={false}
                             tick={{ fill: '#9299a8', fontSize: 11 }}
-                            tickFormatter={(value) => `${value / 1000}k`}
+                            tickFormatter={(value) => (Math.abs(value) >= 1000 ? `${value / 1000}k` : String(value))}
                           />
 
                           <Tooltip
