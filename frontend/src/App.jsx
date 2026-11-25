@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Wallet, ArrowLeftRight, PieChart, Settings,
@@ -177,6 +177,11 @@ function App({ onLogout }) {
   const [showModal, setShowModal] = useState(false)
   const [showPortfolioModal, setShowPortfolioModal] = useState(false)
   const [showTradeModal, setShowTradeModal] = useState(false)
+  const [showPriceModal, setShowPriceModal] = useState(false)
+  const [editingHolding, setEditingHolding] = useState(null)
+  const [priceForm, setPriceForm] = useState('')
+  const [priceError, setPriceError] = useState('')
+  const [priceSaving, setPriceSaving] = useState(false)
 
   const [editingPortfolio, setEditingPortfolio] = useState(null)
 
@@ -482,7 +487,7 @@ function App({ onLogout }) {
 
   const displayedHoldings = useMemo(() => {
     if (Array.isArray(summary?.instruments) && summary.instruments.length) {
-      return summary.instruments
+      return summary.instruments.map((instrument) => ({ ...instrument, id: holdings.find((holding) => [holding.symbol, holding.asset_name].some((value) => String(value || "").trim().toLowerCase() === String(instrument.instrument || instrument.symbol || instrument.asset_name || "").trim().toLowerCase()))?.id ?? instrument.id }))
     }
 
     return holdings.map((holding) => {
@@ -672,6 +677,50 @@ function App({ onLogout }) {
 
     setShowTradeModal(false)
     setFormError('')
+  }
+
+  const openPriceModal = (holding) => {
+    setEditingHolding(holding)
+    setPriceForm(String(holding.current_price ?? ''))
+    setPriceError('')
+    setShowPriceModal(true)
+  }
+
+  const closePriceModal = () => {
+    if (priceSaving) return
+    setShowPriceModal(false)
+    setEditingHolding(null)
+    setPriceForm('')
+    setPriceError('')
+  }
+
+  const handleUpdatePrice = async (event) => {
+    event.preventDefault()
+    setPriceError('')
+
+    const currentPrice = Number(priceForm)
+    if (priceForm.trim() === '' || !Number.isFinite(currentPrice) || currentPrice < 0) {
+      setPriceError('Enter a valid current price of zero or more.')
+      return
+    }
+
+    if (!editingHolding?.id) {
+      setPriceError('Unable to identify this holding. Please close and try again.')
+      return
+    }
+
+    setPriceSaving(true)
+    try {
+      await holdingAPI.update(editingHolding.id, { current_price: currentPrice })
+      setShowPriceModal(false)
+      setEditingHolding(null)
+      setPriceForm('')
+      await loadDashboard(activePortfolioId)
+    } catch (error) {
+      setPriceError(getErrorMessage(error))
+    } finally {
+      setPriceSaving(false)
+    }
   }
 
   const handleTradeChange = (event) => {
@@ -1558,7 +1607,7 @@ function App({ onLogout }) {
                         <TrendingUp size={19} />
                       </div>
                     </div>
-                    <h2>{money(summary?.unrealized_gain || 0, activeCurrency)}</h2>
+                    <h2>{money(summary?.unrealized_gain_loss || 0, activeCurrency)}</h2>
                     <div className="stat-footer">
                       <span>Based on recorded prices</span>
                     </div>
@@ -1605,6 +1654,7 @@ function App({ onLogout }) {
                           <th>TOTAL INVESTED</th>
                           <th>CURRENT VALUE</th>
                           <th>GAIN / LOSS</th>
+                          <th>ACTION</th>
                         </tr>
                       </thead>
 
@@ -1657,6 +1707,17 @@ function App({ onLogout }) {
 
                                 <td className={gain >= 0 ? 'income' : 'expense'}>
                                   {money(gain, activeCurrency)}
+                                </td>
+
+                                <td>
+                                  <button
+                                    type='button'
+                                    className='export-button'
+                                    onClick={() => openPriceModal(holding)}
+                                    aria-label={`Update current price for ${symbol}`}
+                                  >
+                                    Update price
+                                  </button>
                                 </td>
                               </tr>
                             )
@@ -2236,6 +2297,78 @@ function App({ onLogout }) {
                     : tradeForm.type === 'buy'
                       ? 'Record BUY'
                       : 'Record SELL'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showPriceModal && (
+        <div
+          className="modal-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closePriceModal()
+          }}
+        >
+          <div
+            className="transaction-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="price-modal-title"
+          >
+            <div className="modal-header">
+              <div>
+                <h2 id="price-modal-title">Update current price</h2>
+                <p>
+                  Update the recorded market price for{' '}
+                  {editingHolding?.instrument || editingHolding?.symbol || editingHolding?.asset_name || 'this investment'}.
+                </p>
+              </div>
+              <button
+                className="modal-close"
+                onClick={closePriceModal}
+                disabled={priceSaving}
+                aria-label="Close modal"
+              >
+                <X size={21} />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdatePrice}>
+              <label className="form-label" htmlFor="holding-current-price">
+                Current market price ({activeCurrency}) *
+              </label>
+              <input
+                id="holding-current-price"
+                type="number"
+                min="0"
+                step="0.0001"
+                value={priceForm}
+                onChange={(event) => setPriceForm(event.target.value)}
+                placeholder="Enter the latest market price"
+                required
+              />
+
+              {priceError && (
+                <p className="form-error" role="alert">{priceError}</p>
+              )}
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="cancel-button"
+                  onClick={closePriceModal}
+                  disabled={priceSaving}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="primary-button"
+                  disabled={priceSaving}
+                >
+                  {priceSaving ? 'Saving...' : 'Save price'}
                 </button>
               </div>
             </form>
