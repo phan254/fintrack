@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Wallet, ArrowLeftRight, PieChart, Settings,
   Bell, Search, Plus, TrendingUp, TrendingDown, ArrowUpRight,
   ArrowDownLeft, Menu, X, MoreHorizontal, Download,
-  CircleDollarSign, BriefcaseBusiness, ShoppingCart,
+  BriefcaseBusiness, ShoppingCart,
   RefreshCw, Banknote, Trash2,
 } from 'lucide-react'
 import {
@@ -918,9 +918,17 @@ function App() {
 
       <aside className={`sidebar ${mobileMenu ? 'sidebar-open' : ''}`}>
         <div className="brand">
-          <div className="brand-icon">
-            <CircleDollarSign size={25} />
-          </div>
+          <img
+            src="/finnet-logo.png"
+            alt="Finnet logo"
+            style={{
+              height: 40,
+              width: 'auto',
+              background: '#fff',
+              borderRadius: 8,
+              padding: 4,
+            }}
+          />
 
           <div>
             <h2>FinTrack</h2>

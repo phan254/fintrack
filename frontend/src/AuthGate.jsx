@@ -1,7 +1,5 @@
-
 import { useEffect, useState } from 'react'
 import {
-  CircleDollarSign,
   Eye,
   EyeOff,
   LockKeyhole,
@@ -147,9 +145,11 @@ export default function AuthGate() {
   if (loading) {
     return (
       <div style={styles.loadingScreen}>
-        <div style={styles.brandIcon}>
-          <CircleDollarSign size={30} />
-        </div>
+        <img
+          src="/finnet-logo.png"
+          alt="Finnet logo"
+          style={styles.logoImage}
+        />
         <h2 style={{ margin: '14px 0 5px', color: '#19243a' }}>
           FinTrack
         </h2>
@@ -181,9 +181,11 @@ export default function AuthGate() {
     <div style={styles.page}>
       <div style={styles.authCard}>
         <div style={styles.logoArea}>
-          <div style={styles.brandIcon}>
-            <CircleDollarSign size={30} />
-          </div>
+          <img
+            src="/finnet-logo.png"
+            alt="Finnet logo"
+            style={styles.logoImage}
+          />
           <h1 style={styles.brandName}>FinTrack</h1>
           <p style={styles.brandSubtitle}>by Finnet Technologies</p>
         </div>
@@ -367,16 +369,12 @@ const styles = {
     textAlign: 'center',
     marginBottom: 32,
   },
-  brandIcon: {
-    width: 58,
-    height: 58,
+  logoImage: {
+    display: 'block',
+    height: 56,
+    width: 'auto',
+    maxWidth: '100%',
     margin: '0 auto',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 16,
-    background: '#19243a',
-    color: '#fff',
   },
   brandName: {
     margin: '13px 0 2px',
