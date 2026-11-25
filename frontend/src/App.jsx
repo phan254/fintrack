@@ -157,7 +157,7 @@ const pathToPage = Object.fromEntries(
   Object.entries(pageRoutes).map(([page, path]) => [path, page]),
 )
 
-function App() {
+function App({ onLogout }) {
   const routerLocation = useLocation()
   const navigate = useNavigate()
 
@@ -1040,6 +1040,17 @@ function App() {
             </button>
 
             <div className="top-avatar">FT</div>
+
+            {onLogout && (
+              <button
+                type="button"
+                className="cancel-button"
+                onClick={onLogout}
+                title="Sign out of FinTrack"
+              >
+                Sign out
+              </button>
+            )}
           </div>
         </header>
 
@@ -2235,10 +2246,10 @@ function App() {
 }
 
 // The router wraps the app so each page gets its own URL.
-function Root() {
+function Root({ onLogout }) {
   return (
     <BrowserRouter>
-      <App />
+      <App onLogout={onLogout} />
     </BrowserRouter>
   )
 }

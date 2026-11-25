@@ -162,16 +162,7 @@ export default function AuthGate() {
 
   if (user) {
     return (
-      <>
-        <App />
-        <button
-          onClick={handleLogout}
-          title="Sign out of FinTrack"
-          style={styles.logoutButton}
-        >
-          Sign out
-        </button>
-      </>
+      <App onLogout={handleLogout} />
     )
   }
 
@@ -480,19 +471,5 @@ const styles = {
     alignItems: 'center',
     background: '#f5f7fb',
     fontFamily: 'Inter, system-ui, sans-serif',
-  },
-  logoutButton: {
-    position: 'fixed',
-    top: 18,
-    right: 20,
-    zIndex: 1000,
-    padding: '9px 15px',
-    border: '1px solid #dfe4ec',
-    borderRadius: 8,
-    background: '#fff',
-    color: '#19243a',
-    fontWeight: 600,
-    cursor: 'pointer',
-    boxShadow: '0 3px 12px rgba(25,36,58,0.08)',
   },
 }
