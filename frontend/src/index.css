@@ -1,10 +1,20 @@
-
 @import "tailwindcss";
 
 :root {
+  /* Brand identity */
+  --color-primary: #111c35;
+  --color-accent: #315eea;
+
+  /* Neutral palette */
+  --color-background: #f5f7fb;
+  --color-surface: #ffffff;
+  --color-text: #19243a;
+  --color-muted: #8993a5;
+  --color-border: #e9edf4;
+
   font-family: Inter, system-ui, sans-serif;
-  color: #19243a;
-  background: #f5f7fb;
+  color: var(--color-text);
+  background: var(--color-background);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
