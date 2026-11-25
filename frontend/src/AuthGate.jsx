@@ -420,7 +420,7 @@ const styles = {
   inputWrapper: {
     display: 'flex',
     alignItems: 'center',
-    border: '1px solid #dfe4ec',
+    border: '1px solid var(--color-border)',
     borderRadius: 9,
     minHeight: 47,
     padding: '0 12px',
@@ -471,7 +471,7 @@ const styles = {
     padding: '11px 13px',
     marginBottom: 14,
     borderRadius: 8,
-    background: '#fff0f0',
+    background: '#fdecea',
     color: 'var(--color-negative)',
     fontSize: 13,
   },
