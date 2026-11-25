@@ -1,17 +1,38 @@
 @import "tailwindcss";
 
-:root {
-  /* Brand identity */
-  --color-primary: #111c35;
-  --color-accent: #315eea;
+/*
+  FinTrack by Finnet Technologies: design tokens, defined once.
+  `@theme static` makes Tailwind emit every variable on :root and also
+  generate utilities such as bg-primary, bg-accent and text-muted.
+*/
+@theme static {
+  /* Brand identity (estimated from finnettrust.com; swap in exact hex values) */
+  --color-primary: #0b3558;          /* Finnet navy: sidebar, headings */
+  --color-primary-dark: #082a46;
+  --color-accent: #22c31f;           /* Finnet green: buttons, active nav, focus */
+  --color-accent-hover: #1ca81a;
+  --color-on-accent: #0a2a12;        /* dark text on green (passes AA) */
+  --color-accent-soft: #e6f8e5;      /* light green tint for hover and active states */
 
   /* Neutral palette */
   --color-background: #f5f7fb;
   --color-surface: #ffffff;
   --color-text: #19243a;
-  --color-muted: #8993a5;
+  --color-muted: #667085;            /* passes AA on white */
   --color-border: #e9edf4;
 
+  /* Financial meaning only, always shown with +/- signs */
+  --color-positive: #15803d;
+  --color-negative: #c0392b;
+
+  /* Chart series */
+  --chart-1: #0b3558;
+  --chart-2: #22c31f;
+  --chart-3: #5b7a99;
+  --chart-4: #a9b9cc;
+}
+
+:root {
   font-family: Inter, system-ui, sans-serif;
   color: var(--color-text);
   background: var(--color-background);
@@ -27,4 +48,83 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+}
+
+/* Keyboard focus, visible on every interactive element */
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Shared components, reusable on every page */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.btn-primary:hover {
+  background: var(--color-accent-hover);
+}
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  border: 1px solid var(--color-primary);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-secondary:hover {
+  background: var(--color-accent-soft);
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.page-title {
+  margin: 0 0 0.25rem;
+  color: var(--color-primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* Money colours: only ever next to a + or - sign */
+.amount-positive {
+  color: var(--color-positive);
+}
+.amount-negative {
+  color: var(--color-negative);
+}
+
+/* Right-align numbers in tables */
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
 }
