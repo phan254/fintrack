@@ -359,7 +359,7 @@ export default function AuthGate() {
         </div>
 
         <div style={styles.footer}>
-          Â© 2026 FinTrack by Finnet Technologies
+          © 2026 FinTrack by Finnet Technologies
         </div>
       </div>
     </div>
